@@ -1,0 +1,5 @@
+project_id      = "your_project_id"
+region          = "region_to_deploy_into"
+zone            = "zone_within_the_region"
+credentials_file= "<your_path>/JSON_service_account_file_name.json"
+jumpbox_name    = "myJumpbox"
