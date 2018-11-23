@@ -48,8 +48,8 @@ resource "google_compute_instance" "jumpbox" {
   # Last step: we trigger the download and installation of all tools
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /home/ubuntu/init.sh",
-      ". /home/ubuntu/init.sh",
+      "chmod +x /home/ubuntu/scripts/init.sh",
+      ". /home/ubuntu/scripts/init.sh",
     ]
 
     connection {
