@@ -22,9 +22,21 @@ resource "google_compute_instance" "jumpbox" {
   }
 
   # This is where we upload the files necessary for preparing the jumpbox
+
   provisioner "file" {
-    source      = "./config/init.sh"
-    destination = "/home/ubuntu/init.sh"
+    source      = "../config" # no trailing slash - check Terraform documentation for file provisioner
+    destination = "/home/ubuntu"
+
+    connection {
+            type = "ssh"
+            user = "ubuntu"
+            private_key = "${file("~/.ssh/google_compute_engine")}"
+    }
+  }
+
+  provisioner "file" {
+    source      = "../scripts" # no trailing slash - check Terraform documentation for file provisioner
+    destination = "/home/ubuntu"
 
     connection {
             type = "ssh"
