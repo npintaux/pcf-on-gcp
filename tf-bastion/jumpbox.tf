@@ -3,7 +3,7 @@
 #     This script creates a single virtual machine and sets it up for PCF deployment #
 ######################################################################################
 resource "google_compute_instance" "jumpbox" {
-  name         = "${var.bastion_name}"
+  name         = "${var.jumpbox_name}"
   machine_type = "n1-standard-1"
   zone         = "${var.zone}"
 
