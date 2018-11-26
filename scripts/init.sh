@@ -12,9 +12,12 @@ source ~/.env
 echo "source ~/.env" >> ~/.bashrc
 
 # We then download all tools necessary to operate PCF
-sudo apt update
-sudo apt --yes install unzip
-sudo apt --yes install jq
+sudo apt update --yes && \
+sudo apt install --yes unzip && \
+sudo apt install --yes jq && \
+sudo apt install --yes build-essential && \
+sudo apt install --yes ruby-dev && \
+sudo gem install --no-ri --no-rdoc cf-uaac
 
 # Terraform
 wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip && \
@@ -35,3 +38,13 @@ wget -O bosh https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-5.3.1-linux-am
 wget -O /tmp/bbr.tar https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.2.8/bbr-1.2.8.tar && \
   tar xvC /tmp/ -f /tmp/bbr.tar && \
   sudo mv /tmp/releases/bbr /usr/local/bin/
+
+# PivNet CLI
+VERSION=0.0.55
+wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${VERSION}/pivnet-linux-amd64-${VERSION} && \
+  chmod +x pivnet && \
+  sudo mv pivnet /usr/local/bin/
+
+# Download automation scripts
+git clone https://github.com/amcginlay/ops-manager-automation.git ~/ops-manager-automation
+
