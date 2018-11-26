@@ -7,6 +7,7 @@
 ##########################################################
 
 # We first make sure that all the variables are exported in our bash
+mv config/environment.cfg ~/.env
 source ~/.env
 echo "source ~/.env" >> ~/.bashrc
 
