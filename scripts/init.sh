@@ -12,6 +12,7 @@ source ~/.env
 echo "source ~/.env" >> ~/.bashrc
 
 # We then download all tools necessary to operate PCF
+sudo apt-get update
 sudo apt update --yes && \
 sudo apt install --yes unzip && \
 sudo apt install --yes jq && \
@@ -23,7 +24,7 @@ sudo gem install --no-ri --no-rdoc cf-uaac
 wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip && \
   unzip terraform.zip && \
   sudo mv terraform /usr/local/bin && \
-  rm terraform_0.11.8_linux_amd64.zip
+  rm terraform.zip
 
 # PCF OM CLI
 wget -O om https://github.com/pivotal-cf/om/releases/download/0.41.0/om-linux && \
@@ -49,3 +50,5 @@ wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${VER
 # Download automation scripts
 git clone https://github.com/amcginlay/ops-manager-automation.git ~/ops-manager-automation
 
+# Last, we move the GCloud JSON file to the 'ops-manager-automation' folder
+mv config/*.json ops-manager-automation/gcp_credentials.json

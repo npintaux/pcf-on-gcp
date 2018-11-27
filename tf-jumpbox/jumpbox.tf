@@ -7,8 +7,6 @@ resource "google_compute_instance" "jumpbox" {
   machine_type = "n1-standard-1"
   zone         = "${var.zone}"
 
-  tags = ["foo", "bar"]
-
   boot_disk {
     initialize_params {
       image = "ubuntu-os-cloud/ubuntu-1804-lts"
@@ -48,7 +46,7 @@ resource "google_compute_instance" "jumpbox" {
   # Last step: we trigger the download and installation of all tools
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /home/ubuntu/scripts/init.sh",
+      "chmod +x /home/ubuntu/scripts/*.sh",
       ". /home/ubuntu/scripts/init.sh",
     ]
 
