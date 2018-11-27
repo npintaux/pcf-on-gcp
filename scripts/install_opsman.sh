@@ -1,29 +1,29 @@
 #!/bin/bash
 
-# Download the YML definition for the installation of Opsman
-OPSMAN_VERSION=2.3.5
+cd ~/ops-manager-automation
 
-PRODUCT_NAME="Pivotal Cloud Foundry Operations Manager" \
-DOWNLOAD_REGEX="Pivotal Cloud Foundry Ops Manager YAML for GCP" \
-PRODUCT_VERSION=${OPSMAN_VERSION} \
-  ./scripts/download-product.sh
+# Download the YML definition for the installation of Opsman
+PRODUCT_NAME="Pivotal Cloud Foundry Operations Manager"
+DOWNLOAD_REGEX="Pivotal Cloud Foundry Ops Manager YAML for GCP"
+PRODUCT_VERSION=${OPSMAN_VERSION}
+./scripts/download-product.sh
 
 OPSMAN_IMAGE=$(bosh interpolate ./downloads/ops-manager_${OPSMAN_VERSION}_*/OpsManager*onGCP.yml --path /us)
 
 # Donwload the terraform files to install either PAS or PKS
-PAS_VERSION=2.3.3
-
-PRODUCT_NAME="Pivotal Application Service (formerly Elastic Runtime)" \
-DOWNLOAD_REGEX="GCP Terraform Templates" \
-PRODUCT_VERSION=${PAS_VERSION} \
-  ./scripts/download-product.sh
+PRODUCT_NAME="Pivotal Application Service (formerly Elastic Runtime)"
+DOWNLOAD_REGEX="GCP Terraform Templates"
+PRODUCT_VERSION=${PAS_VERSION}
+./scripts/download-product.sh
     
 unzip ./downloads/elastic-runtime_${PAS_VERSION}_*/terraforming-gcp-*.zip -d .
+rm ./downloads/elastic-runtime_${PAS_VERSION}_*/terraforming-gcp-*.zip
 
 # Make a multi-domain cert
 ./scripts/mk-ssl-cert-key.sh
 
 
+# Generate a 'terraform.tfvars' file
 cd ~/ops-manager-automation/pivotal-cf-terraforming-gcp-pks/*
 
 cat > terraform.tfvars <<-EOF

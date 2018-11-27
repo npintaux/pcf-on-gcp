@@ -1,5 +1,9 @@
 #!/bin/bash
-  
+
+##############################################################
+# This script must be run as a prerequisite on the jumpbox ! #
+##############################################################  
+
 # Authenticate against Google
 gcloud auth login
 

@@ -22,7 +22,8 @@ sudo gem install --no-ri --no-rdoc cf-uaac
 # Terraform
 wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip && \
   unzip terraform.zip && \
-  sudo mv terraform /usr/local/bin
+  sudo mv terraform /usr/local/bin && \
+  rm terraform_0.11.8_linux_amd64.zip
 
 # PCF OM CLI
 wget -O om https://github.com/pivotal-cf/om/releases/download/0.41.0/om-linux && \
