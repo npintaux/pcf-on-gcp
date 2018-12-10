@@ -20,6 +20,15 @@ sudo apt install --yes build-essential && \
 sudo apt install --yes ruby-dev && \
 sudo gem install --no-ri --no-rdoc cf-uaac
 
+# GCloud CLI
+export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"
+echo "Adding the GCLOUD repo to apt-get"
+echo "deb http://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+echo "Downloading the GCloud key"
+curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+echoo "Installing the GCLOUD SDK"
+sudo apt-get install --yes google-cloud-sdk
+
 # Terraform
 wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip && \
   unzip terraform.zip && \
@@ -47,8 +56,9 @@ wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${VER
   chmod +x pivnet && \
   sudo mv pivnet /usr/local/bin/
 
-# Download automation scripts
-git clone https://github.com/amcginlay/ops-manager-automation.git ~/ops-manager-automation
+# Download utility to generate a multi-domain cert
+git clone https://github.com/npintaux/generate-multidomain-cert.git
 
-# Last, we move the GCloud JSON file to the 'ops-manager-automation' folder
-mv config/*.json ops-manager-automation/gcp_credentials.json
+# Last, we rename the gcloud JSON file 
+mv ~/config/*.json ~/config/gcp_credentials.json
+

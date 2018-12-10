@@ -1,30 +1,90 @@
 #!/bin/bash
 
-cd ~/ops-manager-automation
+source ~/.env
 
-# Download the YML definition for the installation of Opsman
-PRODUCT_NAME="Pivotal Cloud Foundry Operations Manager"
-DOWNLOAD_REGEX="Pivotal Cloud Foundry Ops Manager YAML for GCP"
-PRODUCT_VERSION=${OPSMAN_VERSION}
-./scripts/download-product.sh
+# Create a download folder to download all artefacts
+cd ~/
+mkdir products_downloads
+cd products_downloads
 
-OPSMAN_IMAGE=$(bosh interpolate ./downloads/ops-manager_${OPSMAN_VERSION}_*/OpsManager*onGCP.yml --path /us)
+AUTHENTICATION_RESPONSE=$(curl \
+  --fail \
+  --data "{\"refresh_token\": \"${PCF_PIVNET_UAA_TOKEN}\"}" \
+  https://network.pivotal.io/api/v2/authentication/access_tokens)
 
-# Donwload the terraform files to install either PAS or PKS
-PRODUCT_NAME="Pivotal Application Service (formerly Elastic Runtime)"
-DOWNLOAD_REGEX="GCP Terraform Templates"
-PRODUCT_VERSION=${PAS_VERSION}
-./scripts/download-product.sh
-    
-unzip ./downloads/elastic-runtime_${PAS_VERSION}_*/terraforming-gcp-*.zip -d .
-rm ./downloads/elastic-runtime_${PAS_VERSION}_*/terraforming-gcp-*.zip
+PIVNET_ACCESS_TOKEN=$(echo ${AUTHENTICATION_RESPONSE} | jq -r '.access_token')
 
-# Make a multi-domain cert
-./scripts/mk-ssl-cert-key.sh
+RELEASE_JSON=$(curl \
+  --fail \
+  "https://network.pivotal.io/api/v2/products/${PRODUCT_SLUG}/releases/${RELEASE_ID}")
+
+EULA_ACCEPTANCE_URL=$(echo ${RELEASE_JSON} |\
+  jq -r '._links.eula_acceptance.href')
+
+curl \
+  --fail \
+  --header "Authorization: Bearer ${PIVNET_ACCESS_TOKEN}" \
+  --request POST \
+  ${EULA_ACCEPTANCE_URL}
 
 
-# Generate a 'terraform.tfvars' file
-cd ~/ops-manager-automation/pivotal-cf-terraforming-gcp-pks/*
+DOWNLOAD_ELEMENT=$(echo ${RELEASE_JSON} |\
+  jq -r '.product_files[] | select(.aws_object_key | contains("terraforming-gcp"))')
+
+FILENAME=$(echo ${DOWNLOAD_ELEMENT} |\
+  jq -r '.aws_object_key | split("/") | last')
+
+URL=$(echo ${DOWNLOAD_ELEMENT} |\
+  jq -r '._links.download.href')
+
+curl \
+  --fail \
+  --location \
+  --output ${FILENAME} \
+  --header "Authorization: Bearer ${PIVNET_ACCESS_TOKEN}" \
+  ${URL}
+
+# Unzip the artefact and move the resulting folder to the root folder
+unzip ./${FILENAME}
+mv ./pivotal-cf-terraforming-gcp-*/ ..
+
+
+# Generate a multi-domain certificate and private key
+cd ~/generate-multidomain-cert
+
+cat > selfsignedca.cnf <<-EOF
+
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+
+[req_distinguished_name]
+C = FR
+ST = FR
+L = Paris
+O = Pivotal 
+CN = *.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+
+[v3_req]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid,issuer
+basicConstraints = CA:TRUE
+subjectAltName = @alt_names
+
+[alt_names]
+DNS.1 = *.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+DNS.2 = *.apps.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+DNS.3 = *.sys.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+DNS.4 = *.login.sys.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+DNS.5 = *.uaa.sys.${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}
+## on so on, and so forth.
+EOF
+
+./generate_ca.sh
+
+# Generate the terraform.tfvars file
+cd ~/pivotal-cf-terraforming-gcp-*/
 
 cat > terraform.tfvars <<-EOF
 env_name            = "${PCF_SUBDOMAIN_NAME}"
@@ -37,12 +97,13 @@ create_gcs_buckets  = "false"
 external_database   = 0
 isolation_segment   = "false"
 ssl_cert            = <<SSL_CERT
-$(cat ../${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}.crt)
+$(cat ~/generate-multidomain-cert/server.crt)
 SSL_CERT
 ssl_private_key     = <<SSL_KEY
-$(cat ../${PCF_SUBDOMAIN_NAME}.${PCF_DOMAIN_NAME}.key)
+$(cat ~/generate-multidomain-cert/server.key)
 SSL_KEY
 service_account_key = <<SERVICE_ACCOUNT_KEY
-$(cat ../gcp_credentials.json)
+$(cat ~/config/gcp_credentials.json)
 SERVICE_ACCOUNT_KEY
 EOF
+
