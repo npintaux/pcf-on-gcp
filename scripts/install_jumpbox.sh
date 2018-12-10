@@ -10,7 +10,7 @@ cat > terraform.tfvars <<-EOF
 project_id      = "$(gcloud config get-value core/project)"
 region          = "${PCF_REGION}"
 zone            = "${PCF_AZ_1}"
-credentials_file= "${GCP_CREDENTIALS_FILE}"
+credentials_file= "~/config/gcp_credentials.json"
 jumpbox_name    = "jumpbox"
 EOF
 

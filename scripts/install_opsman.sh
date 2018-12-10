@@ -2,6 +2,16 @@
 
 source ~/.env
 
+# Authenticate against Google
+gcloud auth login
+
+# Enable all Google APIs
+gcloud services enable compute.googleapis.com && \
+gcloud services enable iam.googleapis.com && \
+gcloud services enable cloudresourcemanager.googleapis.com && \
+gcloud services enable dns.googleapis.com && \
+gcloud services enable sqladmin.googleapis.com
+
 # Create a download folder to download all artefacts
 cd ~/
 mkdir products_downloads
@@ -16,7 +26,7 @@ PIVNET_ACCESS_TOKEN=$(echo ${AUTHENTICATION_RESPONSE} | jq -r '.access_token')
 
 RELEASE_JSON=$(curl \
   --fail \
-  "https://network.pivotal.io/api/v2/products/${PRODUCT_SLUG}/releases/${RELEASE_ID}")
+  "https://network.pivotal.io/api/v2/products/${PAS_SLUG}/releases/${PAS_RELEASE_ID}")
 
 EULA_ACCEPTANCE_URL=$(echo ${RELEASE_JSON} |\
   jq -r '._links.eula_acceptance.href')
@@ -106,4 +116,27 @@ service_account_key = <<SERVICE_ACCOUNT_KEY
 $(cat ~/config/gcp_credentials.json)
 SERVICE_ACCOUNT_KEY
 EOF
+
+terraform init
+terraform plan
+terraform apply -auto-approve
+
+# Open the network communication channels
+gcloud compute networks peerings create default-to-${PCF_SUBDOMAIN_NAME}-pcf-network \
+  --network=default \
+  --peer-network=${PCF_SUBDOMAIN_NAME}-pcf-network \
+  --auto-create-routes
+
+gcloud compute networks peerings create ${PCF_SUBDOMAIN_NAME}-pcf-network-to-default \
+  --network=${PCF_SUBDOMAIN_NAME}-pcf-network \
+  --peer-network=default \
+  --auto-create-routes
+
+gcloud compute --project=${PCF_PROJECT_ID} firewall-rules create bosh \
+ --direction=INGRESS \
+ --priority=1000 \
+ --network=${PCF_SUBDOMAIN_NAME}-pcf-network \
+ --action=ALLOW \
+ --rules=tcp:25555,tcp:8443,tcp:22 \
+ --source-ranges=0.0.0.0/0
 
