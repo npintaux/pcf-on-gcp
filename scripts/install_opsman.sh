@@ -94,7 +94,7 @@ EOF
 ./generate_ca.sh
 
 # Generate the terraform.tfvars file
-cd ~/pivotal-cf-terraforming-gcp-*/
+cd ~/pivotal-cf-terraforming-gcp-*/terraforming-pks
 
 cat > terraform.tfvars <<-EOF
 env_name            = "${PCF_SUBDOMAIN_NAME}"

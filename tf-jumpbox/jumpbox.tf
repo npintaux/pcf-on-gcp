@@ -43,6 +43,17 @@ resource "google_compute_instance" "jumpbox" {
     }
   }
 
+  provisioner "file" {
+    source      = "../templates" # no trailing slash - check Terraform documentation for file provisioner
+    destination = "/home/ubuntu"
+
+    connection {
+            type = "ssh"
+            user = "ubuntu"
+            private_key = "${file("~/.ssh/google_compute_engine")}"
+    }
+  }
+
   # Last step: we trigger the download and installation of all tools
   provisioner "remote-exec" {
     inline = [

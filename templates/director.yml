@@ -1,0 +1,58 @@
+iaas-configuration:
+  project: ((PCF_PROJECT_ID))
+  associated_service_account: ((PCF_SUBDOMAIN_NAME))-opsman@((PCF_PROJECT_ID)).iam.gserviceaccount.com
+  default_deployment_tag: ((PCF_SUBDOMAIN_NAME))
+director-configuration:
+  ntp_servers_string: metadata.google.internal
+  post_deploy_enabled: true
+  resurrector_enabled: true
+  retry_bosh_deploys: true
+az-configuration:
+- name: ((PCF_AZ_1))
+- name: ((PCF_AZ_2))
+- name: ((PCF_AZ_3))
+networks-configuration:
+  icmp_checks_enabled: false
+  networks:
+  - name: management
+    subnets:
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-management-subnet/((PCF_REGION))
+      cidr: 10.0.0.0/26
+      dns: 169.254.169.254
+      gateway: 10.0.0.1
+      reserved_ip_ranges: 10.0.0.1-10.0.0.9
+      availability_zone_names:
+      - ((PCF_AZ_1))
+      - ((PCF_AZ_2))
+      - ((PCF_AZ_3))
+  - name: pas
+    subnets:
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-pas-subnet/((PCF_REGION))
+      cidr: 10.0.4.0/24
+      dns: 169.254.169.254
+      gateway: 10.0.4.1
+      reserved_ip_ranges: 10.0.4.1-10.0.4.9
+      availability_zone_names:
+      - ((PCF_AZ_1))
+      - ((PCF_AZ_2))
+      - ((PCF_AZ_3))
+  - name: services
+    subnets:
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-services-subnet/((PCF_REGION))
+      cidr: 10.0.8.0/24
+      dns: 169.254.169.254
+      gateway: 10.0.8.1
+      reserved_ip_ranges: 10.0.8.1-10.0.8.9
+      availability_zone_names:
+      - ((PCF_AZ_1))
+      - ((PCF_AZ_2))
+      - ((PCF_AZ_3))
+network-assignment:
+  network:
+    name: management
+  singleton_availability_zone:
+    name: ((PCF_AZ_1))
+resource-configuration:
+  compilation:
+    instances: 8
+

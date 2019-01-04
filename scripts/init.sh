@@ -30,23 +30,23 @@ echoo "Installing the GCLOUD SDK"
 sudo apt-get install --yes google-cloud-sdk
 
 # Terraform
-wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.8/terraform_0.11.8_linux_amd64.zip && \
+wget -O terraform.zip https://releases.hashicorp.com/terraform/0.11.11/terraform_0.11.11_linux_amd64.zip && \
   unzip terraform.zip && \
   sudo mv terraform /usr/local/bin && \
   rm terraform.zip
 
 # PCF OM CLI
-wget -O om https://github.com/pivotal-cf/om/releases/download/0.41.0/om-linux && \
+wget -O om https://github.com/pivotal-cf/om/releases/download/0.48.0/om-linux && \
   chmod +x om && \
   sudo mv om /usr/local/bin/
 
 # BOSH CLI
-wget -O bosh https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-5.3.1-linux-amd64 && \
+wget -O bosh https://s3.amazonaws.com/bosh-cli-artifacts/bosh-cli-5.4.0-linux-amd64 && \
   chmod +x bosh && \
   sudo mv bosh /usr/local/bin/
 
 # BBR CLI
-wget -O /tmp/bbr.tar https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.2.8/bbr-1.2.8.tar && \
+wget -O /tmp/bbr.tar https://github.com/cloudfoundry-incubator/bosh-backup-and-restore/releases/download/v1.3.2/bbr-1.3.2.tar && \
   tar xvC /tmp/ -f /tmp/bbr.tar && \
   sudo mv /tmp/releases/bbr /usr/local/bin/
 
