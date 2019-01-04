@@ -7,6 +7,7 @@ director-configuration:
   post_deploy_enabled: true
   resurrector_enabled: true
   retry_bosh_deploys: true
+  allow_legacy_agents: false
 az-configuration:
 - name: ((PCF_AZ_1))
 - name: ((PCF_AZ_2))
@@ -16,7 +17,7 @@ networks-configuration:
   networks:
   - name: management
     subnets:
-    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-management-subnet/((PCF_REGION))
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-infrastructure-subnet/((PCF_REGION))
       cidr: 10.0.0.0/26
       dns: 169.254.169.254
       gateway: 10.0.0.1
@@ -25,24 +26,24 @@ networks-configuration:
       - ((PCF_AZ_1))
       - ((PCF_AZ_2))
       - ((PCF_AZ_3))
-  - name: pas
+  - name: pks-main
     subnets:
-    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-pas-subnet/((PCF_REGION))
-      cidr: 10.0.4.0/24
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-pks-subnet/((PCF_REGION))
+      cidr: 10.0.10.0/24
       dns: 169.254.169.254
-      gateway: 10.0.4.1
-      reserved_ip_ranges: 10.0.4.1-10.0.4.9
+      gateway: 10.0.10.1
+      reserved_ip_ranges: 10.0.10.1-10.0.10.9
       availability_zone_names:
       - ((PCF_AZ_1))
       - ((PCF_AZ_2))
       - ((PCF_AZ_3))
-  - name: services
+  - name: pks-services
     subnets:
-    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-services-subnet/((PCF_REGION))
-      cidr: 10.0.8.0/24
+    - iaas_identifier: ((PCF_SUBDOMAIN_NAME))-pcf-network/((PCF_SUBDOMAIN_NAME))-pks-services-subnet/((PCF_REGION))
+      cidr: 10.0.11.0/24
       dns: 169.254.169.254
-      gateway: 10.0.8.1
-      reserved_ip_ranges: 10.0.8.1-10.0.8.9
+      gateway: 10.0.11.1
+      reserved_ip_ranges: 10.0.11.1-10.0.11.9
       availability_zone_names:
       - ((PCF_AZ_1))
       - ((PCF_AZ_2))

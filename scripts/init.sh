@@ -56,6 +56,11 @@ wget -O pivnet https://github.com/pivotal-cf/pivnet-cli/releases/download/v${VER
   chmod +x pivnet && \
   sudo mv pivnet /usr/local/bin/
 
+# let's make sure that our environment is still up-to-date
+sudo apt-get upgrade --yes
+sudo apt-get update --yes
+sudo apt update --yes
+
 # Download utility to generate a multi-domain cert
 git clone https://github.com/npintaux/generate-multidomain-cert.git
 
